@@ -1,0 +1,5 @@
+wb-mqtt-co2mon (1.0) stable; urgency=medium
+
+  * Initial release.
+
+ -- Evgeny Boger <boger@contactless.ru>  Sat, 23 May 2015 23:02:12 +0300
