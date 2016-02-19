@@ -1,3 +1,9 @@
+wb-mqtt-co2mon (1.1) UNRELEASED; urgency=medium
+
+  * report meta/errors on errors
+
+ -- Evgeny Boger <boger@contactless.ru>  Fri, 19 Feb 2016 15:55:38 +0300
+
 wb-mqtt-co2mon (1.0) stable; urgency=medium
 
   * Initial release.

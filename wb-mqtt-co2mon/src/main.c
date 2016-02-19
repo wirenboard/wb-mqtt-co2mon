@@ -41,6 +41,40 @@ static double decode_temperature(uint16_t w)
     return (double)w * 0.0625 - 273.15;
 }
 
+static void publish_mqtt_error(const char * control, const char * error) {
+    static char buf[100];
+    snprintf(buf, sizeof(buf), "/devices/co2mon/controls/%s/meta/error", control);
+    mosquitto_publish(mosq, NULL, buf, error ? strlen(error) : 0, error, 2, true);
+}
+
+
+static void _set_control_error(const char * control, char * error_cache, const char * error) {
+    if (error != NULL) {
+        if (!!strcmp(error_cache, error)) {
+            strncpy(error_cache, error, sizeof(error_cache)/sizeof(error_cache[0]));
+            publish_mqtt_error(control, error);
+        }
+    } else {
+        if (error_cache[0]) {
+            error_cache[0] = 0;
+            publish_mqtt_error(control, 0);
+        }
+    }
+}
+
+static void set_temp_error(const char * error) {
+    static char error_cache[100] = "";
+    _set_control_error("temperature" , error_cache, error);
+}
+static void set_co2_error(const char * error) {
+    static char error_cache[100] = "";
+    _set_control_error("co2", error_cache, error);
+}
+
+static void set_errors() {
+    set_temp_error("r");
+    set_co2_error("r");
+}
 
 static void device_loop(co2mon_device dev)
 {
@@ -51,6 +85,7 @@ static void device_loop(co2mon_device dev)
 
     if (!co2mon_send_magic_table(dev, magic_table)) {
         fprintf(stderr, "Unable to send magic table to CO2 device\n");
+        set_errors();
         return;
     }
 
@@ -60,13 +95,17 @@ static void device_loop(co2mon_device dev)
         int r = co2mon_read_data(dev, magic_table, result);
         if (r == LIBUSB_ERROR_NO_DEVICE) {
             fprintf(stderr, "Device has been disconnected\n");
+            set_errors();
             break;
         } else if (r <= 0) {
+            set_errors();
+            sleep(1);
             continue;
         }
 
         if (result[4] != 0x0d) {
             fprintf(stderr, "Unexpected data from device (data[4] = %02hhx, await 0x0d)\n", result[4]);
+            set_errors();
             continue;
         }
 
@@ -78,6 +117,7 @@ static void device_loop(co2mon_device dev)
         checksum = r0 + r1 + r2;
         if (checksum != r3) {
             fprintf(stderr, "checksum error (%02hhx, await %02hhx)\n", checksum, r3);
+            set_errors();
             continue;
         }
 
@@ -87,10 +127,16 @@ static void device_loop(co2mon_device dev)
 	        case CODE_TEMP:
 				snprintf(buffer, 15, "%2.1f", decode_temperature(w));
 	            mosquitto_publish(mosq, NULL, "/devices/co2mon/controls/temperature", strlen(buffer), buffer, 2, true);
+                set_temp_error(0);
 	            break;
 	        case CODE_CO2:
+                if ((unsigned)w > 3000) {
+                    // Avoid reading spurious (uninitialized?) data
+                    break;
+                }
 				snprintf(buffer, 15, "%d", w);
 	            mosquitto_publish(mosq, NULL, "/devices/co2mon/controls/co2", strlen(buffer), buffer, 2, true);
+                set_co2_error(0);
 	            break;
 	        //~ case CODE_HUMIDITY:
 				//~ if (w != 0) {
@@ -112,6 +158,8 @@ void monitor_loop()
                 fprintf(stderr, "Unable to open CO2 device\n");
                 show_no_device = false;
             }
+            set_temp_error("r");
+            set_co2_error("r");
         } else {
             show_no_device = true;
 
