@@ -206,9 +206,9 @@ int main(int argc, char *argv[])
 	int tmp;
 	char * endptr = 0;
 	char * host = "127.0.0.1";
+    int decode_data = 1;
 
-
-    while ( (c = getopt(argc, argv, "h:p:")) != -1) {
+    while ( (c = getopt(argc, argv, "h:p:n")) != -1) {
         switch (c) {
         case 'p':
             tmp = strtol(optarg, &endptr, 0);
@@ -222,6 +222,9 @@ int main(int argc, char *argv[])
         case 'h':
             host = optarg;
             break;
+        case 'n':
+            decode_data = 0;
+            break;
         case '?':
             break;
         default:
@@ -230,7 +233,7 @@ int main(int argc, char *argv[])
     }
 
 
-    rc = co2mon_init();
+    rc = co2mon_init(decode_data);
     if (rc < 0) {
         return rc;
     }
