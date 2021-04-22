@@ -26,7 +26,7 @@ typedef unsigned char co2mon_magic_table_t[8];
 typedef unsigned char co2mon_data_t[8];
 
 extern int
-co2mon_init();
+co2mon_init(int);
 
 extern void
 co2mon_exit();

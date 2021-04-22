@@ -5,6 +5,8 @@ MQTT driver (Wiren Board conventions).
 Based on https://github.com/dmage/co2mon
 
 
+For newer MT8057 revisions, please add -n command line switch to `DAEMON_ARGS`
+in `/etc/init.d/wb-mqtt-co2mon` initscript.
 
 ## See also
 
