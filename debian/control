@@ -3,9 +3,9 @@ Maintainer: Evgeny Boger <boger@contactless.ru>
 Section: misc
 Priority: optional
 Standards-Version: 3.9.2
-Build-Depends: debhelper (>= 9), libusb-dev, pkg-config, libusb-1.0-0-dev
+Build-Depends: debhelper (>= 9), libusb-dev, pkg-config, libusb-1.0-0-dev, libmosquitto-dev
 
 Package: wb-mqtt-co2mon
 Architecture: any
-Depends: ${shlibs:Depends}, ${misc:Depends}, libusb-1.0-0
+Depends: ${shlibs:Depends}, ${misc:Depends}, libusb-1.0-0, libmosquitto1
 Description: WB MQTT driver for MasterKit MT8057 CO2 sensor
