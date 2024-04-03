@@ -1,1 +1,2 @@
-buildDebSbuild defaultTargets: 'wb5 wb6'
+buildDebSbuild defaultTargets: 'wb5 bullseye-armhf bullseye-arm64',
+               defaultRunLintian: true
