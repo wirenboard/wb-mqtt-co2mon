@@ -16,7 +16,7 @@ wb-mqtt-co2mon (1.1.1) stable; urgency=medium
 
  -- Evgeny Boger <boger@contactless.ru>  Thu, 22 Apr 2021 21:14:45 +0300
 
-wb-mqtt-co2mon (1.1) UNRELEASED; urgency=medium
+wb-mqtt-co2mon (1.1) stable; urgency=medium
 
   * report meta/errors on errors
 
